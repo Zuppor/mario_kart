@@ -1,0 +1,94 @@
+[gd_scene load_steps=13 format=3 uid="uid://dc2b3d0q7to2t"]
+
+[ext_resource type="PackedScene" uid="uid://cwncuw7u862il" path="res://scenes/kart/kart.tscn" id="1_q11y4"]
+[ext_resource type="Script" uid="uid://cqwx372tgjhjx" path="res://CameraController.gd" id="2_aes75"]
+[ext_resource type="PackedScene" uid="uid://0axh88q3fnlp" path="res://meshes/track.glb" id="3_dwq1p"]
+[ext_resource type="Script" uid="uid://dm8qkt1ckvnqm" path="res://TrackDirection.gd" id="4_c7xoc"]
+[ext_resource type="Script" uid="uid://kmkgydx7basg" path="res://DeathArea.gd" id="5_gunkr"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_qk4a2"]
+size = Vector2(1000, 1000)
+orientation = 1
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_q11y4"]
+
+[sub_resource type="Curve3D" id="Curve3D_dwq1p"]
+closed = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -1.7805, 33.0556, -102.393, 0, 0, 0, 0, 0, 0, 6.13954, 56.3798, -229.114, 0, 0, 0, 0, 0, 0, 110.42, 56.3798, -244.294, 0, 0, 0, 0, 0, 0, 129.392, 56.4959, -429.067, 0, 0, 0, 0, 0, 0, 130.534, -35.2603, -620.932, 0, 0, 0, 0, 0, 0, 222.99, -35.2603, -709.113, 0, 0, 0, 0, 0, 0, 528.895, -35.2603, -706.695, 0, 0, 0, 0, 0, 0, 595.565, -35.2603, -654.286, 0, 0, 0, 0, 0, 0, 596.918, -34.0986, -557.807, 0, 0, 0, 0, 0, 0, 599.311, 38.8266, -387.101, 0, 0, 0, 0, 0, 0, 600.819, 37.9808, -279.524, 0, 0, 0, 0, 0, 0, 519.952, 37.9886, -211.288, 0, 0, 0, 0, 0, 0, 338.885, 152.789, -208.244, 0, 0, 0, 0, 0, 0, 242.104, 154.01, -208.247, 0, 0, 0, 0, 0, 0, 168.758, 149.347, -90.3327, 0, 0, 0, 0, 0, 0, 170.078, 173.245, 4.048, 0, 0, 0, 0, 0, 0, 280.958, 168.178, 84.5686, 0, 0, 0, 0, 0, 0, 495.46, 174.546, 84.5686, 0, 0, 0, 0, 0, 0, 574.172, 166.485, 215.096, 0, 0, 0, 0, 0, 0, 573.518, 0, 242.301, 0, 0, 0, 0, 0, 0, 573.518, 0, 495.742, 0, 0, 0, 0, 0, 0, 492.998, 0, 556.463, 0, 0, 0, 0, 0, 0, 54.7542, 0, 555.143, 0, 0, 0, 0, 0, 0, -2.66624, 0, 508.283, 0, 0, 0, 0, 0, 0, -0.883156, 0, 136.521, 0, 0, 0, 0, 0, 0, -0.95787, 0, -30.2886),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+}
+point_count = 26
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_c7xoc"]
+size = Vector3(1065.58, 242.325, 1253.56)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_eqbee"]
+size = Vector3(474.758, 363.533, 296.267)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_gunkr"]
+size = Vector3(637.319, 242.325, 1253.56)
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_eqbee"]
+
+[node name="Testroom" type="Node3D"]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+visible = false
+mesh = SubResource("QuadMesh_qk4a2")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Floor"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor/StaticBody3D"]
+shape = SubResource("WorldBoundaryShape3D_q11y4")
+disabled = true
+debug_color = Color(1, 0, 0, 0.419608)
+
+[node name="Kart" parent="." instance=ExtResource("1_q11y4")]
+
+[node name="Camera3D" type="Camera3D" parent="." node_paths=PackedStringArray("target")]
+script = ExtResource("2_aes75")
+lerp_speed = 10.0
+target = NodePath("../Kart/CarMeshController")
+offset_from_target = Vector3(0, 3, -5)
+look_offset = Vector3(0, 1, 0)
+
+[node name="track" parent="." instance=ExtResource("3_dwq1p")]
+
+[node name="TrackDirection" type="Path3D" parent="." node_paths=PackedStringArray("car")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0467224, 1.14441e-05, 0.34338)
+curve = SubResource("Curve3D_dwq1p")
+script = ExtResource("4_c7xoc")
+car = NodePath("../Kart")
+
+[node name="DeathArea" type="Area3D" parent="." node_paths=PackedStringArray("track_direction")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.1369, 0)
+script = ExtResource("5_gunkr")
+track_direction = NodePath("../TrackDirection")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DeathArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.7888, -120.663, 126.781)
+shape = SubResource("BoxShape3D_c7xoc")
+debug_color = Color(1, 0, 0, 0.419608)
+
+[node name="CollisionShape3D4" type="CollisionShape3D" parent="DeathArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 285.359, 97.9685, 311.239)
+shape = SubResource("BoxShape3D_eqbee")
+debug_color = Color(1, 0, 0, 0.419608)
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="DeathArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 866.545, -120.663, 175.665)
+shape = SubResource("BoxShape3D_gunkr")
+debug_color = Color(1, 0, 0, 0.419608)
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="DeathArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 866.545, -66.2006, -156.344)
+shape = SubResource("WorldBoundaryShape3D_eqbee")
+debug_color = Color(1, 0, 0, 0.419608)
+
+[editable path="Kart"]
+[editable path="Kart/CarMeshController/hatchback-sports"]

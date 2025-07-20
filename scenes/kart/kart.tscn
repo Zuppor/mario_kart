@@ -1,0 +1,60 @@
+[gd_scene load_steps=10 format=3 uid="uid://cwncuw7u862il"]
+
+[ext_resource type="PackedScene" uid="uid://drbjerp3ufhi1" path="res://scenes/kart/hatchback_sports.tscn" id="1_5y1ng"]
+[ext_resource type="Script" uid="uid://ulmko7xw42jp" path="res://scenes/kart/kartController.gd" id="1_o4efj"]
+[ext_resource type="Script" uid="uid://076823wkahoc" path="res://scenes/kart/CarMeshController.gd" id="3_fhxd7"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ebdtj"]
+bounce = 0.1
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_ebdtj"]
+radius = 1.0
+
+[sub_resource type="Gradient" id="Gradient_o4efj"]
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_fhxd7"]
+gradient = SubResource("Gradient_o4efj")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6vfav"]
+albedo_texture = SubResource("GradientTexture1D_fhxd7")
+
+[sub_resource type="SphereMesh" id="SphereMesh_o4efj"]
+material = SubResource("StandardMaterial3D_6vfav")
+radius = 1.0
+height = 2.0
+
+[node name="Kart" type="Node3D" node_paths=PackedStringArray("rigidbody", "ground_ray", "car_mesh_controller")]
+script = ExtResource("1_o4efj")
+rigidbody = NodePath("Rigidbody")
+ground_ray = NodePath("CarMeshController/GroundRay")
+car_mesh_controller = NodePath("CarMeshController")
+mesh_offset = Vector3(0, -1, 0)
+
+[node name="Rigidbody" type="RigidBody3D" parent="." groups=["kart"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+physics_material_override = SubResource("PhysicsMaterial_ebdtj")
+gravity_scale = 2.5
+angular_damp = 6.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Rigidbody"]
+shape = SubResource("SphereShape3D_ebdtj")
+
+[node name="SphereMesh" type="MeshInstance3D" parent="Rigidbody"]
+visible = false
+mesh = SubResource("SphereMesh_o4efj")
+
+[node name="CarMeshController" type="Node3D" parent="." node_paths=PackedStringArray("turning_wheels", "body")]
+script = ExtResource("3_fhxd7")
+turning_wheels = [NodePath("hatchback-sports/wheel-front-left"), NodePath("hatchback-sports/wheel-front-right")]
+body = NodePath("hatchback-sports/body")
+body_tilt = 50.0
+metadata/_custom_type_script = "uid://076823wkahoc"
+
+[node name="hatchback-sports" parent="CarMeshController" instance=ExtResource("1_5y1ng")]
+script = ExtResource("3_fhxd7")
+
+[node name="GroundRay" type="RayCast3D" parent="CarMeshController"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+target_position = Vector3(0, -2, 0)
+
+[editable path="CarMeshController/hatchback-sports"]
