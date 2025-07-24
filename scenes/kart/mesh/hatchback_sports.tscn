@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://drbjerp3ufhi1"]
+
+[ext_resource type="PackedScene" uid="uid://cfx3vaiyuomg8" path="res://scenes/kart/mesh/hatchback-sports.glb" id="1_2tph3"]
+
+[node name="hatchback-sports" instance=ExtResource("1_2tph3")]

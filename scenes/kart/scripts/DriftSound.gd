@@ -1,0 +1,14 @@
+class_name DriftSound
+extends AudioStreamPlayer3D
+
+@export var kart: KartController
+
+func _ready() -> void:
+	kart.on_drift_start.connect(on_drift_start)
+	kart.on_drift_end.connect(on_drift_end)
+	
+func on_drift_start():
+	play()
+
+func on_drift_end():
+	stop()

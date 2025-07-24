@@ -1,8 +1,15 @@
-[gd_scene load_steps=10 format=3 uid="uid://cwncuw7u862il"]
+[gd_scene load_steps=24 format=3 uid="uid://cwncuw7u862il"]
 
-[ext_resource type="PackedScene" uid="uid://drbjerp3ufhi1" path="res://scenes/kart/hatchback_sports.tscn" id="1_5y1ng"]
-[ext_resource type="Script" uid="uid://ulmko7xw42jp" path="res://scenes/kart/kartController.gd" id="1_o4efj"]
-[ext_resource type="Script" uid="uid://076823wkahoc" path="res://scenes/kart/CarMeshController.gd" id="3_fhxd7"]
+[ext_resource type="PackedScene" uid="uid://drbjerp3ufhi1" path="res://scenes/kart/mesh/hatchback_sports.tscn" id="1_5y1ng"]
+[ext_resource type="Script" uid="uid://ulmko7xw42jp" path="res://scenes/kart/scripts/kartController.gd" id="1_o4efj"]
+[ext_resource type="Script" uid="uid://dkxpiuybpme4u" path="res://scenes/kart/scripts/ImpactDetector.gd" id="2_ewopv"]
+[ext_resource type="Script" uid="uid://076823wkahoc" path="res://scenes/kart/scripts/CarMeshController.gd" id="3_fhxd7"]
+[ext_resource type="AudioStream" uid="uid://du3xw0p51nd8o" path="res://scenes/kart/sounds/engine.ogg" id="4_n6xoy"]
+[ext_resource type="AudioStream" uid="uid://bborj4qiwnxgj" path="res://scenes/kart/sounds/car-crash-sound-376882.mp3" id="5_6br6t"]
+[ext_resource type="Script" uid="uid://bok0rhy5j3r4m" path="res://scenes/kart/scripts/CrashSound.gd" id="7_hjf8c"]
+[ext_resource type="Script" uid="uid://b2jl1c1ehym5l" path="res://scenes/kart/scripts/DriftSound.gd" id="8_olyyb"]
+[ext_resource type="AudioStream" uid="uid://bij0utyvdnn2j" path="res://scenes/kart/sounds/car_drifting.ogg" id="8_xo45j"]
+[ext_resource type="Script" uid="uid://bktxstfaw2jma" path="res://scenes/kart/TireSmoke.gd" id="10_yyvm1"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ebdtj"]
 bounce = 0.1
@@ -23,12 +30,49 @@ material = SubResource("StandardMaterial3D_6vfav")
 radius = 1.0
 height = 2.0
 
-[node name="Kart" type="Node3D" node_paths=PackedStringArray("rigidbody", "ground_ray", "car_mesh_controller")]
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_hjf8c"]
+random_pitch = 1.2
+streams_count = 1
+stream_0/stream = ExtResource("5_6br6t")
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_xo45j"]
+random_pitch = 1.2
+streams_count = 1
+stream_0/stream = ExtResource("8_xo45j")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_xo45j"]
+gravity = Vector3(0, 1, 0)
+
+[sub_resource type="Gradient" id="Gradient_yyvm1"]
+offsets = PackedFloat32Array(0.10559, 0.602484)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_qqe66"]
+gradient = SubResource("Gradient_yyvm1")
+fill = 1
+fill_from = Vector2(0.462222, 0.466667)
+fill_to = Vector2(1, 1)
+repeat = 1
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_shlt8"]
+transparency = 1
+blend_mode = 1
+albedo_texture = SubResource("GradientTexture2D_qqe66")
+billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_lji5m"]
+material = SubResource("StandardMaterial3D_shlt8")
+
+[node name="Kart" type="Node3D" node_paths=PackedStringArray("rigidbody", "ground_ray", "car_mesh_controller", "audio_player")]
 script = ExtResource("1_o4efj")
 rigidbody = NodePath("Rigidbody")
 ground_ray = NodePath("CarMeshController/GroundRay")
 car_mesh_controller = NodePath("CarMeshController")
 mesh_offset = Vector3(0, -1, 0)
+audio_player = NodePath("CarMeshController/EngineAudioStreamPlayer3D")
 
 [node name="Rigidbody" type="RigidBody3D" parent="." groups=["kart"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
@@ -43,6 +87,11 @@ shape = SubResource("SphereShape3D_ebdtj")
 visible = false
 mesh = SubResource("SphereMesh_o4efj")
 
+[node name="ImpactDetector" type="Node" parent="Rigidbody" node_paths=PackedStringArray("rigidbody")]
+script = ExtResource("2_ewopv")
+rigidbody = NodePath("..")
+metadata/_custom_type_script = "uid://dkxpiuybpme4u"
+
 [node name="CarMeshController" type="Node3D" parent="." node_paths=PackedStringArray("turning_wheels", "body")]
 script = ExtResource("3_fhxd7")
 turning_wheels = [NodePath("hatchback-sports/wheel-front-left"), NodePath("hatchback-sports/wheel-front-right")]
@@ -51,10 +100,49 @@ body_tilt = 50.0
 metadata/_custom_type_script = "uid://076823wkahoc"
 
 [node name="hatchback-sports" parent="CarMeshController" instance=ExtResource("1_5y1ng")]
-script = ExtResource("3_fhxd7")
 
 [node name="GroundRay" type="RayCast3D" parent="CarMeshController"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
-target_position = Vector3(0, -2, 0)
+target_position = Vector3(0, -1.5, 0)
+
+[node name="EngineAudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="CarMeshController"]
+stream = ExtResource("4_n6xoy")
+attenuation_model = 3
+autoplay = true
+max_polyphony = 2
+bus = &"FXs"
+
+[node name="CrashAudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="CarMeshController" node_paths=PackedStringArray("impact_detector")]
+stream = SubResource("AudioStreamRandomizer_hjf8c")
+attenuation_model = 3
+volume_db = -10.0
+max_polyphony = 3
+script = ExtResource("7_hjf8c")
+impact_detector = NodePath("../../Rigidbody/ImpactDetector")
+
+[node name="DriftAudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="CarMeshController" node_paths=PackedStringArray("kart")]
+stream = SubResource("AudioStreamRandomizer_xo45j")
+attenuation_model = 3
+volume_db = -10.0
+script = ExtResource("8_olyyb")
+kart = NodePath("../..")
+
+[node name="TireSmoke" type="GPUParticles3D" parent="CarMeshController" node_paths=PackedStringArray("kart")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.433169, 0.0932576, -1.1194)
+emitting = false
+lifetime = 0.7
+process_material = SubResource("ParticleProcessMaterial_xo45j")
+draw_pass_1 = SubResource("QuadMesh_lji5m")
+script = ExtResource("10_yyvm1")
+kart = NodePath("../..")
+
+[node name="TireSmoke2" type="GPUParticles3D" parent="CarMeshController" node_paths=PackedStringArray("kart")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.433, 0.0932576, -1.11926)
+emitting = false
+lifetime = 0.7
+process_material = SubResource("ParticleProcessMaterial_xo45j")
+draw_pass_1 = SubResource("QuadMesh_lji5m")
+script = ExtResource("10_yyvm1")
+kart = NodePath("../..")
 
 [editable path="CarMeshController/hatchback-sports"]
