@@ -72,7 +72,7 @@ func on_floor() -> bool:
 
 func handle_drifitng():
 	var kart_alignment_with_velocity: float = rigidbody.linear_velocity.normalized().dot(car_mesh_controller.global_transform.basis.z)
-	self.drifting = rigidbody.linear_velocity.length() > 5.5 and kart_alignment_with_velocity < 0.9 and on_floor() and input_speed > 0
+	self.drifting = rigidbody.linear_velocity.length() > 5.5 and kart_alignment_with_velocity < 0.9 and on_floor() and input_speed >= 0
 
 func handle_car_mesh_controller(delta: float) -> void:
 	car_mesh_controller.global_position = rigidbody.global_position + mesh_offset
