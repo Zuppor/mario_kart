@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://cwncuw7u862il"]
+[gd_scene load_steps=27 format=3 uid="uid://cwncuw7u862il"]
 
 [ext_resource type="PackedScene" uid="uid://drbjerp3ufhi1" path="res://scenes/kart/mesh/hatchback_sports.tscn" id="1_5y1ng"]
 [ext_resource type="Script" uid="uid://ulmko7xw42jp" path="res://scenes/kart/scripts/kartController.gd" id="1_o4efj"]
@@ -6,10 +6,12 @@
 [ext_resource type="Script" uid="uid://076823wkahoc" path="res://scenes/kart/scripts/CarMeshController.gd" id="3_fhxd7"]
 [ext_resource type="AudioStream" uid="uid://du3xw0p51nd8o" path="res://scenes/kart/sounds/engine.ogg" id="4_n6xoy"]
 [ext_resource type="AudioStream" uid="uid://bborj4qiwnxgj" path="res://scenes/kart/sounds/car-crash-sound-376882.mp3" id="5_6br6t"]
+[ext_resource type="Script" uid="uid://cct0ppxcr0gp7" path="res://scenes/kart/scripts/EngineSound.gd" id="6_shlt8"]
 [ext_resource type="Script" uid="uid://bok0rhy5j3r4m" path="res://scenes/kart/scripts/CrashSound.gd" id="7_hjf8c"]
 [ext_resource type="Script" uid="uid://b2jl1c1ehym5l" path="res://scenes/kart/scripts/DriftSound.gd" id="8_olyyb"]
 [ext_resource type="AudioStream" uid="uid://bij0utyvdnn2j" path="res://scenes/kart/sounds/car_drifting.ogg" id="8_xo45j"]
 [ext_resource type="Script" uid="uid://bktxstfaw2jma" path="res://scenes/kart/TireSmoke.gd" id="10_yyvm1"]
+[ext_resource type="Script" uid="uid://cqwx372tgjhjx" path="res://CameraController.gd" id="11_qqe66"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ebdtj"]
 bounce = 0.1
@@ -29,6 +31,11 @@ albedo_texture = SubResource("GradientTexture1D_fhxd7")
 material = SubResource("StandardMaterial3D_6vfav")
 radius = 1.0
 height = 2.0
+
+[sub_resource type="Curve" id="Curve_shlt8"]
+_limits = [1.0, 2.0, -1.0, 1.0]
+_data = [Vector2(-1, 1.2), 0.0, 0.0, 0, 0, Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 1.7), 0.0, 0.0, 0, 0]
+point_count = 3
 
 [sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_hjf8c"]
 random_pitch = 1.2
@@ -66,13 +73,12 @@ particles_anim_loop = false
 [sub_resource type="QuadMesh" id="QuadMesh_lji5m"]
 material = SubResource("StandardMaterial3D_shlt8")
 
-[node name="Kart" type="Node3D" node_paths=PackedStringArray("rigidbody", "ground_ray", "car_mesh_controller", "audio_player")]
+[node name="Kart" type="Node3D" node_paths=PackedStringArray("rigidbody", "ground_ray", "car_mesh_controller")]
 script = ExtResource("1_o4efj")
 rigidbody = NodePath("Rigidbody")
 ground_ray = NodePath("CarMeshController/GroundRay")
 car_mesh_controller = NodePath("CarMeshController")
 mesh_offset = Vector3(0, -1, 0)
-audio_player = NodePath("CarMeshController/EngineAudioStreamPlayer3D")
 
 [node name="Rigidbody" type="RigidBody3D" parent="." groups=["kart"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
@@ -92,9 +98,10 @@ script = ExtResource("2_ewopv")
 rigidbody = NodePath("..")
 metadata/_custom_type_script = "uid://dkxpiuybpme4u"
 
-[node name="CarMeshController" type="Node3D" parent="." node_paths=PackedStringArray("turning_wheels", "body")]
+[node name="CarMeshController" type="Node3D" parent="." node_paths=PackedStringArray("turning_wheels", "breaking_lights", "body")]
 script = ExtResource("3_fhxd7")
 turning_wheels = [NodePath("hatchback-sports/wheel-front-left"), NodePath("hatchback-sports/wheel-front-right")]
+breaking_lights = [NodePath("BrakeLight"), NodePath("BrakeLight2")]
 body = NodePath("hatchback-sports/body")
 body_tilt = 50.0
 metadata/_custom_type_script = "uid://076823wkahoc"
@@ -111,6 +118,8 @@ attenuation_model = 3
 autoplay = true
 max_polyphony = 2
 bus = &"FXs"
+script = ExtResource("6_shlt8")
+pitch_curve = SubResource("Curve_shlt8")
 
 [node name="CrashAudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="CarMeshController" node_paths=PackedStringArray("impact_detector")]
 stream = SubResource("AudioStreamRandomizer_hjf8c")
@@ -144,5 +153,35 @@ process_material = SubResource("ParticleProcessMaterial_xo45j")
 draw_pass_1 = SubResource("QuadMesh_lji5m")
 script = ExtResource("10_yyvm1")
 kart = NodePath("../..")
+
+[node name="BrakeLight" type="OmniLight3D" parent="CarMeshController"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.486449, 0.871205, -1.32225)
+light_color = Color(1, 0, 0, 1)
+
+[node name="BrakeLight2" type="OmniLight3D" parent="CarMeshController"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.486, 0.871, -1.322)
+light_color = Color(1, 0, 0, 1)
+
+[node name="FrontLight" type="SpotLight3D" parent="CarMeshController"]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -0.444568, 0.547161, 1.33487)
+light_color = Color(1, 1, 0.52549, 1)
+light_energy = 5.125
+spot_range = 7.59893
+spot_angle = 23.3192
+
+[node name="FrontLight2" type="SpotLight3D" parent="CarMeshController"]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0.445, 0.547, 1.335)
+light_color = Color(1, 1, 0.52549, 1)
+light_energy = 5.125
+spot_range = 7.59893
+spot_angle = 23.3192
+
+[node name="Camera3D" type="Camera3D" parent="." node_paths=PackedStringArray("target")]
+top_level = true
+script = ExtResource("11_qqe66")
+lerp_speed = 20.0
+target = NodePath("../CarMeshController")
+offset_from_target = Vector3(0, 3, -5)
+look_offset = Vector3(0, 1, 0)
 
 [editable path="CarMeshController/hatchback-sports"]

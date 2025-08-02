@@ -1,7 +1,6 @@
-[gd_scene load_steps=13 format=3 uid="uid://dc2b3d0q7to2t"]
+[gd_scene load_steps=12 format=3 uid="uid://dc2b3d0q7to2t"]
 
 [ext_resource type="PackedScene" uid="uid://cwncuw7u862il" path="res://scenes/kart/kart.tscn" id="1_q11y4"]
-[ext_resource type="Script" uid="uid://cqwx372tgjhjx" path="res://CameraController.gd" id="2_aes75"]
 [ext_resource type="PackedScene" uid="uid://0axh88q3fnlp" path="res://meshes/track.glb" id="3_dwq1p"]
 [ext_resource type="Script" uid="uid://dm8qkt1ckvnqm" path="res://TrackDirection.gd" id="4_c7xoc"]
 [ext_resource type="Script" uid="uid://kmkgydx7basg" path="res://DeathArea.gd" id="5_gunkr"]
@@ -50,13 +49,6 @@ debug_color = Color(1, 0, 0, 0.419608)
 
 [node name="Kart" parent="." instance=ExtResource("1_q11y4")]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
-
-[node name="Camera3D" type="Camera3D" parent="." node_paths=PackedStringArray("target")]
-script = ExtResource("2_aes75")
-lerp_speed = 10.0
-target = NodePath("../Kart/CarMeshController")
-offset_from_target = Vector3(0, 3, -5)
-look_offset = Vector3(0, 1, 0)
 
 [node name="track" parent="." instance=ExtResource("3_dwq1p")]
 

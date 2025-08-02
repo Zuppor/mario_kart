@@ -13,9 +13,6 @@ extends Node3D
 @export var turn_stop_limit: float = .75
 @export var mesh_offset: Vector3
 
-@export_group("Sounds")
-@export var audio_player: AudioStreamPlayer3D
-
 var wish_direction: Vector3 = Vector3.FORWARD
 var input_speed: float
 var input_steering: float
@@ -49,22 +46,14 @@ func _process(delta: float) -> void:
 	
 	handle_car_mesh_controller(delta)
 	
-	var kart_alignment_with_velocity: float = rigidbody.linear_velocity.normalized().dot(car_mesh_controller.global_transform.basis.z)
-	self.drifting = rigidbody.linear_velocity.length() > 5.5 and kart_alignment_with_velocity < 0.9 and on_floor()
-		
+	handle_drifitng()
+	
 	
 	
 func get_input_speed() -> float:
 	var result: float = 0
 	
 	var acceleration_strength: float = Input.get_action_strength("accelerate")
-	
-	var effect := AudioServer.get_bus_effect(1, 0) as AudioEffectPitchShift
-	if acceleration_strength > 0:
-		effect.pitch_scale += .001
-	else:
-		effect.pitch_scale -= .001
-	effect.pitch_scale = clampf(effect.pitch_scale, 1, 1.7)
 	
 	result += acceleration_strength
 	result -= Input.get_action_strength("brake")
@@ -80,11 +69,17 @@ func get_input_steering() -> float:
 
 func on_floor() -> bool:
 	return ground_ray.is_colliding()
-	
+
+func handle_drifitng():
+	var kart_alignment_with_velocity: float = rigidbody.linear_velocity.normalized().dot(car_mesh_controller.global_transform.basis.z)
+	self.drifting = rigidbody.linear_velocity.length() > 5.5 and kart_alignment_with_velocity < 0.9 and on_floor() and input_speed > 0
+
 func handle_car_mesh_controller(delta: float) -> void:
 	car_mesh_controller.global_position = rigidbody.global_position + mesh_offset
 	
 	car_mesh_controller.set_wheels_rotation(input_steering)
+	
+	car_mesh_controller.set_braking_light(input_speed < 0)
 	
 	if rigidbody.linear_velocity.length() > turn_stop_limit:
 		var new_basis: Basis = car_mesh_controller.global_transform.basis.rotated(car_mesh_controller.global_transform.basis.y, input_steering)

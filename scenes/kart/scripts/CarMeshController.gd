@@ -2,6 +2,7 @@ class_name CarMeshController
 extends Node3D
 
 @export var turning_wheels: Array[Node3D]
+@export var breaking_lights: Array[Light3D]
 @export var body: Node3D
 @export var body_tilt: float = 35
 @export var body_tilt_lerp: float = 10
@@ -15,3 +16,7 @@ func set_body_tilt(velocity: float, delta: float) -> void:
 	var tilt: float = velocity / body_tilt
 	body.rotation.z = lerp(body.rotation.z, tilt, body_tilt_lerp * delta)
 	body.rotation_degrees.z = clamp(body.rotation_degrees.z, -max_body_tilt ,max_body_tilt)
+
+func set_braking_light(on: bool):
+	for light in breaking_lights:
+		light.visible = on
